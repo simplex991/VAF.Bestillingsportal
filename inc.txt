@@ -1,0 +1,59 @@
+<?php
+
+define('HANLDER_NAME',      'side');
+define('FOLDERS',           'source/php/inc');
+define('ROT_FOLDER',        '');
+define('DEFAULT_FOLDER',    'source/php/inc');
+define('DEFAULT_PAGE',      'forside'); // 
+define('ERROR_FILE',        '');
+define('WARNING',           '<h2>Ikke tilgjengelig!</h2><strong>Feil!</strong> Siden du leter etter er ikke tilgjengelig.');
+define('FILE_TYPE',         '.php');
+
+$pages = array ('blocksitehere'); // Sider du ikke vil tilate visning
+
+
+function findFolder($value) {
+	$allFolders = explode(',', FOLDERS);
+	$allFolders = array_map("trim", $allFolders);
+	
+	$theFile = $value . FILE_TYPE;
+	
+	for ($x = 0; $x < count($allFolders); $x++) {
+		$file = ROT_FOLDER . $allFolders[$x] . '/' . $theFile;
+		
+		if (file_exists(trim($file))) {
+			$folder = $allFolders[$x];
+			break;
+		}
+	}
+	return $folder;
+}
+
+$theGet = basename($_GET[HANLDER_NAME]);
+
+if (!isset($_GET[HANLDER_NAME])) {
+	$includeThisPage = ROT_FOLDER . DEFAULT_FOLDER . '/' . DEFAULT_PAGE . FILE_TYPE;
+} else {
+	if (in_array($theGet, $pages)) { // Sider du ikke vil tilate visning
+		echo WARNING;
+		$error = true;
+	} else {
+		
+		$folder = findFolder($theGet);
+		
+		if ($folder) {
+			$includeThisPage = ROT_FOLDER . $folder . '/' . $theGet . FILE_TYPE;
+		} else {
+			if (!file_exists($includeThisPage)) {
+				echo WARNING;
+				$error = true;
+			}
+		}
+	}
+}
+
+if (!$error) {
+ 	include_once($includeThisPage);
+}
+
+?>
